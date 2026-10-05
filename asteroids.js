@@ -23,7 +23,6 @@ function initAsteroids() {
     document.addEventListener('keydown', keyDown);
     document.addEventListener('keyup', keyUp);
     global.canvas = document.getElementById('canvas');
-    global.body = document.querySelector("body")
     global.bufferCanvas = document.createElement('canvas');
     resize();
     global.level = 0;
@@ -851,9 +850,12 @@ function nextLevel() {
 
 
 const resize = function() {
-    const {body, canvas, bufferCanvas} = global;
-    global.screenWidth = body.clientWidth;
-    global.screenHeight = body.clientHeight;
+    const {canvas, bufferCanvas} = global;
+    if (!canvas || !bufferCanvas) {
+        return;
+    }
+    global.screenWidth = window.innerWidth;
+    global.screenHeight = window.innerHeight;
     canvas.width = global.screenWidth;
     canvas.height = global.screenHeight;
     bufferCanvas.width = global.width;
