@@ -34,7 +34,7 @@ const ship = {
     x: 200,
     y: 200,
     angle: 45,
-    thrust: false,
+    thrust: 0,
     dx: 0,
     dy: 0,
     dAngle: 0,
@@ -152,7 +152,7 @@ function controlEnemy(enemy) {
         enemy.dAngle = (!ship.remove) ? Math.sign(theta - angle) * 6 : 0
     } else {
         enemy.dAngle = 0;
-        enemy.thrust = false;
+        enemy.thrust = 0;
     }
 }
 
@@ -359,9 +359,9 @@ function sin(angle) {
 }
 
 function addThrustParticle(ship) {
-    const thrustAngle = 180 + ship.angle + (Math.random()-0.5) * 15;
-    const ox =  cos(thrustAngle) * 5
-    const oy = -sin(thrustAngle) * 5;
+    const thrustAngle = 180 + ship.angle + ((performance.now()*16)%16-8);
+    const ox =  cos(thrustAngle) * 5 * ship.thrust
+    const oy = -sin(thrustAngle) * 5 * ship.thrust;
     const dx = ship.dx + ox;
     const dy = ship.dy + oy;
     particles.push({x: ship.x,
@@ -410,8 +410,8 @@ function moveShip(ship) {
         ship.angle -= 360;
     }
     if (ship.thrust) {
-        const newdx = ship.dx + cos(ship.angle) * 0.25;
-        const newdy = ship.dy - sin(ship.angle) * 0.25;
+        const newdx = ship.dx + cos(ship.angle) * 0.25 * ship.thrust;
+        const newdy = ship.dy - sin(ship.angle) * 0.25 * ship.thrust;
         addThrustParticle(ship);
         if (speed(newdx, newdy) <= ship.maxSpeed) {
             ship.dx = newdx;
@@ -800,11 +800,15 @@ function keyDown(e) {
     case 39: // right
         ship.dAngle = -6; break;
     case 38: // up
-        ship.thrust = true;  break;
+        ship.thrust = 1;  break;
+    case 40: // down
+        ship.thrust = -1;  break;
     case 32: // space
         ship.shoot = true;  break;
     case 90: // space
         smartBomb();  break;
+    default:
+        console.log("keycode=", e.keyCode)
     }
 }
 
@@ -814,7 +818,8 @@ function keyUp(e) {
         ship.dAngle =0 ; break;
     case 39: //right
         ship.dAngle =0 ; break;
-    case 38: //right
+    case 38: // up (fall-through)
+    case 40: // down
         ship.thrust = false;  break;
     case 32: // space
         ship.shoot = false;  break;
